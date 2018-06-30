@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">	<head>		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		<title>UI</title>
+		<link rel='favicon' href='favicon.ico' />
+		<link rel='icon' href='favicon.ico' />
+		<link rel='shortcut icon' href='favicon.ico' />
+		<link rel='apple-touch-icon' href='favicon.ico' />
+		<link rel='apple-touch-icon-precomposed' href='favicon.ico' />
+		<meta name='mobile-web-app-capable' content='yes' />
+		<meta name='apple-mobile-web-app-capable' content='yes' />
+		<meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+		<style>
+			* {
+				font-family: "Lucida Grande";
+			}
+			html, body {
+				width: 100%;
+				height: 100%;
+				padding: 0;
+				margin: 0;
+				overflow: hidden;
+				max-height: 100%;
+				max-width: 100%;
+				max-height: 100% !important;
+				max-width: 100% !important;
+			}
+			body {
+				background: #000
+			}
+			p {
+				display: inline;
+			}
+			.header {
+				text-align: center;
+				color: #777;
+				padding-bottom: 6px;
+				background: linear-gradient(#FFF 0%, #AAB 85%);
+				background: -o-linear-gradient(#FFF 0%, #AAB 85%);
+				background: -moz-linear-gradient(#FFF 0%, #AAB 85%);
+				background: -webkit-linear-gradient(#FFF 0%, #AAB 85%);
+				font-family: Helvetica NeueUI, Helvetica Neue, Helvetica;
+				font-weight: bold;
+				text-shadow: #FFF 0 1px 0;
+				font-size: 22px;
+				line-height: 44px;
+				height: 44px;
+				border-top-left-radius: 16px;
+				border-top-right-radius: 16px;
+				border-bottom: solid 1px #446;
+			}
+			.window {
+				border-radius: 16px;
+				position: relative;
+				padding: 0;
+				margin: 0;
+				width: 512px;
+				height: 384px;
+				background: #CCC;
+				overflow: hidden;
+			}
+			.panel_left {
+				position: relative;
+				width: 35%;
+				height: 100%;
+				border-right: solid 1px #112;
+				overflow: hidden;
+			}
+			.panel_right {
+				position: relative;
+				bottom: 100%;
+				left: 35%;
+				padding-left: 5%;
+				padding-top: 3%;
+				height: 100%;
+				background: #000
+				overflow: hidden;
+				width: 55%;
+			}
+			.optionbox {
+				display: inline-block;
+				position: relative;
+				background: white;
+				overflow: hidden;
+				border: solid 1px #777;
+				border-radius: 12px;
+				margin-top: 1%;
+				padding: 3%;
+				width: 94%;
+				font-family: Helvetica NeueUI, Helvetica Neue, Helvetica;
+			}
+			.option {
+				position: relative;
+				display: block;
+				font-size: 16px;
+				line-height: 24px;
+				border-bottom: solid 1px #777;
+				width: 105%;
+				padding-left: 5%;
+				padding-top: 0.5%;
+				padding-bottom: 0.5%;
+				right: 5%;
+			}
+			.option:last-child {
+				border-bottom: none;
+			}
+			.draggable {
+				position: absolute;
+			}
+			.category, .categoryselected {
+				font-size: 17px;
+				line-height: 42px;
+				height: 42px;
+				width: 100%;
+				padding-left: 7.5%;
+				border-top: solid 1px #557;
+				border-bottom: solid 1px #446;
+				font-weight: bold;
+				background: #E0E0E0;
+				background: linear-gradient(#E0E0E0, #E8E8E8);
+				background: -o-linear-gradient(#E0E0E0, #E8E8E8);
+				background: -moz-linear-gradient(#E0E0E0, #E8E8E8);
+				background: -webkit-linear-gradient(#E0E0E0, #E8E8E8);
+				font-family: Helvetica NeueUI, Helvetica Neue, Helvetica;
+			}
+			.categoryselected {
+				background: #44E;
+				background: linear-gradient(#55F, #11C);
+				background: -o-linear-gradient(#55F, #11C);
+				background: -moz-linear-gradient(#55F, #11C);
+				background: -webkit-linear-gradient(#55F, #11C);
+				text-shadow: #000 -0.6px -1px;
+				color: white;
+			}
+		</style>
+		<script>
+			var dragging = {};
+			var isclicking = false;
+			window.onerror = function onerror(err) {
+				alert('Oh my fucking god.. another ' + (err.split(':')[0]) + ', well, let\'s see how helpful it\'s error message actually is!\n\n' + (err.split(':')[1] || '') + '\n\nWell... Fuck.');
+			};
+			function addTouchEventsTo(header) {
+				header.ontouchstart = function ontouchstart(e) {
+					var paddingX = Math.abs(e.changedTouches[0].pageX - (parseInt(header.parentElement.style.left.replace('px', '')) || 0)),
+						paddingY = Math.abs(e.changedTouches[0].pageY - (parseInt(header.parentElement.style.top.replace('px', '')) || 0));
+					dragging = {
+						element: header.parentElement,
+						paddingX: paddingX,
+						paddingY: paddingY
+					};
+				};
+				header.onmousedown = function onmousedown(e) {
+					isclicking = true;
+					var evt = e;
+					evt.changedTouches = [{pageX: e.pageX, pageY: e.pageY}];
+					header.ontouchstart(evt);
+				};
+			};
+			window.onload = function onload(e) {
+				var draggable = document.getElementsByClassName('draggable');
+				for(var id = 0; id < draggable.length; id++) {
+					var headers = document.getElementsByClassName('header');
+					if(headers[0].parentElement == draggable[id]) {
+						var header = headers[0];
+						addTouchEventsTo(header);
+					};
+				};
+				var categories = document.querySelectorAll('.category, .categoryselected'),
+					refresh = function refresh() {
+						categories = document.querySelectorAll('.category, .categoryselected');
+						for(var cat = 0; cat < categories.length; cat++) {	
+							var id = categories[cat].innerText.toLowerCase().match(/[a-z0-9]/gi);
+							if(categories[cat].className == 'category') {
+								document.getElementById(id.join('')).style.display = 'none';
+							} else {
+								document.getElementById(id.join('')).style.display = 'block';
+							};
+						};
+					};
+				for(var cat = 0; cat < categories.length; cat++) {	
+					categories[cat].onclick = function selected(e) {
+						var cats = document.querySelectorAll('.category, .categoryselected');
+						for(var cat = 0; cat < cats.length; cat++) {
+							cats[cat].className = 'category';
+						};
+						e.target.className = (e.target.className == 'categoryselected' ? 'category' : 'categoryselected');
+						refresh();
+					};
+				};
+				refresh();
+			};
+			window.ontouchmove = function ontouchmove(e) {
+				e.preventDefault();
+				if('element' in dragging) {
+					dragging.element.style.left = Math.abs(dragging.paddingX - e.changedTouches[0].pageX) + 'px';
+					dragging.element.style.top = Math.abs(dragging.paddingY - e.changedTouches[0].pageY) + 'px';
+				};
+			};
+			window.onmousemove = function onmousemove(e) {
+				e.preventDefault();
+				if('element' in dragging && isclicking) {
+					dragging.element.style.left = Math.abs(dragging.paddingX - e.pageX) + 'px';
+					dragging.element.style.top = Math.abs(dragging.paddingY - e.pageY) + 'px';
+				};
+			};
+			window.ontouchend = function ontouchend(e) {
+				//e.preventDefault();
+				if('element' in dragging) {
+					dragging = {};
+				};
+			};
+			window.onmouseup = function onmouseup(e) {
+				e.preventDefault();
+				if('element' in dragging) {
+					dragging = {};
+				};
+			};
+		</script>
+	</head>
+	<body>
+		<div id='dextop_5x'>
+			<div class='window draggable' style='top: 96px; left: 64px'>
+				<div class='header'>
+					<p>UI Window</p>
+				</div>
+				<div class='panel_left'>
+					<div class='categoryselected'>
+						Category #1
+					</div>
+					<div class='category'>
+						Category #2
+					</div>
+					<div class='category'>
+						Credits
+					</div>
+				</div>
+				<div class='panel_right'>
+					<div id='category1'>
+						<p class='optionbox'>
+							<a class='option'>
+								Contents of
+							</a>
+							<a class='option'>
+								&zwj;&#9;&#20;&zwj;&#9;&#20;Category 1
+							</a>
+						</p>
+						<p class='optionbox'>
+							<a class='option'>
+								A second option box
+							</a>
+							<a class='option'>
+								Although there isn't any settings so...
+							</a>
+							<a class='option'>
+								Kind of useless..
+							</a>
+						</p>
+					</div>
+					<div id='category2'>
+						<p class='optionbox'>
+							<a class='option'>
+								Contents of
+							</a>
+							<a class='option'>
+								&zwj;&#9;&#20;&zwj;&#9;&#20;Category 2
+							</a>
+						</p>
+						<p class='optionbox'>
+							<a class='option'>
+								This is 100% HTML4
+							</a>
+							<a class='option'>
+								Tested: 
+							</a>
+							<a class='option'>
+								&zwj;&#9;&#20;&zwj;&#9;&#20;iBook G4 (Safari 5)
+							</a>
+							<a class='option'>
+								&zwj;&#9;&#20;&zwj;&#9;&#20;iPad 1 (iOS 5.1.1)
+							</a>
+							<a class='option'>
+								&zwj;&#9;&#20;&zwj;&#9;&#20;iPad 2 (iOS 8.4.1)
+							</a>
+						</p>
+					</div>
+					<div id='credits'>
+						<p class='optionbox'>
+							<a class='option'>
+								Everything here done by:
+							</a>
+							<a class='option'>
+								&zwj;&#9;&#20;&zwj;&#9;&#20;John Jelatis
+							</a>
+							<a class='option'>
+								Inspired by:
+							</a>
+							<a class='option'>
+								&zwj;&#9;&#20;&zwj;&#9;&#20;iOS Mobile UI
+							</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>	</body></html>
